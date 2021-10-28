@@ -1,9 +1,16 @@
 package com.hackerearth.fullstack.backend.controller;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+//import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,8 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hackerearth.fullstack.backend.exception.CustomException;
 import com.hackerearth.fullstack.backend.model.Student;
+import com.hackerearth.fullstack.backend.payload.request.MessageServiceRequest;
 import com.hackerearth.fullstack.backend.payload.request.StudentRequest;
 import com.hackerearth.fullstack.backend.payload.response.MessageResponse;
+import com.hackerearth.fullstack.backend.payload.response.MessageServiceResponse;
 import com.hackerearth.fullstack.backend.repository.StudentRepository;
 import com.hackerearth.fullstack.backend.services.StudentService;
 import com.hackerearth.fullstack.backend.utils.Constants;
@@ -119,7 +128,34 @@ public class StudentController {
     	return result;
     }
 
- 
-
+  @GetMapping("/student/fetch/")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Consumes({MediaType.APPLICATION_JSON})
+  public ResponseEntity<MessageServiceResponse> fetchStudents() {
+	  HashMap<String , Object> responseMap = new HashMap<>();
+	  responseMap.put("result", studentService.fetchAllStudents());
+	  MessageServiceResponse responseObj = new MessageServiceResponse();
+	  responseObj.setResponse(responseMap);
+	  return new ResponseEntity<MessageServiceResponse>(responseObj,HttpStatus.OK);
+  }
+  
+  @PostMapping("/student/fetch/limit")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+   public ResponseEntity<MessageServiceResponse> fetchStudentsLimit(@RequestBody MessageServiceRequest requestBody) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	 
+	  System.out.println(requestBody);
+	  System.out.println(requestBody.getRequest());
+	  MessageServiceResponse responseObj = new MessageServiceResponse();
+	  try {
+		responseObj.setResponse(studentService.fetchAndSaveData(requestBody));
+	} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+			| InvocationTargetException | ClassNotFoundException | InstantiationException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	  return new ResponseEntity<MessageServiceResponse>(responseObj,HttpStatus.OK);
+  }
+  
 
 }
